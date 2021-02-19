@@ -2,6 +2,7 @@ const imagesArea = document.querySelector('.images');
 const gallery = document.querySelector('.gallery');
 const galleryHeader = document.querySelector('.gallery-header');
 const searchBtn = document.getElementById('search-btn');
+const searchEnter = document.getElementById('search');
 const sliderBtn = document.getElementById('create-slider');
 const sliderContainer = document.getElementById('sliders');
 // selected image 
@@ -23,12 +24,14 @@ const showImages = (images) => {
     let div = document.createElement('div');
     div.className = 'col-lg-3 col-md-4 col-xs-6 img-item mb-2';
     div.innerHTML = ` <img class="img-fluid img-thumbnail" onclick=selectItem(event,"${image.webformatURL}") src="${image.webformatURL}" alt="${image.tags}">`;
-    gallery.appendChild(div)
+    gallery.appendChild(div);
+    toggleLoadingBtn(false);
   })
 
 }
 
 const getImages = (query) => {
+  toggleLoadingBtn(true);
   fetch(`https://pixabay.com/api/?key=${KEY}=${query}&image_type=photo&pretty=true`)
     .then(response => response.json())
     .then(data => showImages(data.hits))
@@ -40,13 +43,12 @@ const selectItem = (event, img) => {
   let element = event.target;
   element.classList.toggle('added');
 
- 
+
   let item = sliders.indexOf(img);
   if (item === -1) {
     sliders.push(img);
   } else {
     sliders.pop(img);
-    // alert('Hey, Already added !')
   }
 }
 var timer
@@ -117,10 +119,29 @@ searchBtn.addEventListener('click', function () {
   document.querySelector('.main').style.display = 'none';
   clearInterval(timer);
   const search = document.getElementById('search');
-  getImages(search.value)
+  getImages(search.value);
   sliders.length = 0;
 })
+
+searchEnter.addEventListener('keypress', function (event) {
+  if (event.key === 'Enter') {
+    document.getElementById('search-btn').click();
+  }
+});
 
 sliderBtn.addEventListener('click', function () {
   createSlider()
 })
+
+const toggleLoadingBtn = (show) => {
+  const loading = document.getElementById('loading-btn');
+  const image = document.getElementById('image-container');
+  
+  if (show) {
+    loading.classList.remove('d-none');
+    image.classList.add('d-none');
+  } else {
+    loading.classList.add('d-none');
+    image.classList.remove('d-none');
+  }
+}
